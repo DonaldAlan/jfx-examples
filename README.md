@@ -14,6 +14,8 @@ By Donald A. Smith, ThinkerFeeler@gmail.com
 
  ![Cloth Model Screenshot](cloth-screenshot.jpg)
 
+ Video at https://youtu.be/O7H5Y_y7Ytk
+
 ## To Build
 mvn compile
 

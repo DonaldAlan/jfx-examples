@@ -682,7 +682,7 @@ public class ClothMesh extends Application {
 		
 		runStopSphere.setTranslateX(-167);
 		runStopSphere.setTranslateY(-3);
-		runStopSphere.setMaterial(redMaterial);
+		runStopSphere.setMaterial(greenMaterial);
 		runStopSphere.setOnMouseClicked( e-> { startOrStop();});
 		root.getChildren().add(runStopSphere);
 
