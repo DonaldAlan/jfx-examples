@@ -9,11 +9,14 @@ By Donald A. Smith, ThinkerFeeler@gmail.com
  The program is a JavaFX application with sliders for controlling the wind speed, the spring force, the gravity,
  and the simulation speed.
 
+
+ See cloth-screenshot.jpg for a screenshot.
+
 ## To Build
 mvn compile
 
 
-## To RUn
+## To Run
 Run via a command like:
 
 /c/Program\ Files/Java/jdk1.8.0_221/bin/java -cp target/classes/ cloth.ClothMesh
