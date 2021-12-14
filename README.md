@@ -12,6 +12,8 @@ By Donald A. Smith, ThinkerFeeler@gmail.com
 
  See cloth-screenshot.jpg for a screenshot.
 
+ ![Cloth Model Screenshot](cloth-screenshot.jpg)
+
 ## To Build
 mvn compile
 
