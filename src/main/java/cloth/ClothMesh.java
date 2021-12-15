@@ -762,12 +762,6 @@ public class ClothMesh extends Application {
 		}
 // 0 3 6 9 12 15 18 21 24 27 30 33 36 39 42 45 48 51 54 57 
 //60 63 66 69 72 75 78 81 84 87 90 93 96 99 102 105 108 111 114 117 		
-		for(int row=0;row<n;row++) {
-			for(int col=0;col<n;col++) {
-				System.out.print(pointsArray[row][col].meshPointRealIndex + " ");
-			}
-			System.out.println();
-		}
 		for (int row = 0; row < n - 1; row++) {
 			for (int col = 0; col < n - 1; col++) {
 				CPoint3D topLeft = pointsArray[col][row];
@@ -789,7 +783,6 @@ public class ClothMesh extends Application {
 		PhongMaterial meshViewMaterial = new PhongMaterial();
 		meshViewMaterial.setDiffuseMap(image);
 		meshView.setMaterial(meshViewMaterial);
-		System.out.println(points.get(pointsArray[0][0].meshPointRealIndex) - points.get(pointsArray[0][1].meshPointRealIndex));
 	}
 //0 3 6 9 12 15 18 21 24 27 30 33 36 39 42 45 48 51 54 57 
 //60 63 66 69 72 75 78 81 84 87 90 93 96 99 102 105 108 111 114 117 	
