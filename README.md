@@ -19,6 +19,8 @@ By Donald A. Smith, ThinkerFeeler@gmail.com
 ### particles.Particles
 
 Simulation of smoke/particles, with sliders that let you control the shape, size, and longevity of the smoke.
+ ![Particles/Smoke Screenshot](particles.jpg)
+
 
 ## To Build
 mvn compile
