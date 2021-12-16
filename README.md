@@ -16,13 +16,20 @@ By Donald A. Smith, ThinkerFeeler@gmail.com
 
  Video at https://youtu.be/O7H5Y_y7Ytk
 
+### particles.Particles
+
+Simulation of smoke/particles, with sliders that let you control the shape, size, and longevity of the smoke.
+
 ## To Build
 mvn compile
 
 
 ## To Run
-Run via a command like:
+Run via commands like:
 
 /c/Program\ Files/Java/jdk1.8.0_221/bin/java -cp target/classes/ cloth.ClothMesh
+
+/c/Program\ Files/Java/jdk1.8.0_221/bin/java -cp target/classes/ particles.Particles
+
 
 If you use Java 8, javafx libraries are already included.
