@@ -41,6 +41,17 @@ import javafx.stage.Stage;
 /**
  * Simulation of smoke, with sliders to control the shape, size and longevity of the smoke.
  * 
+ * It creates a configurable set of ParticleGroup objects. Each ParticleGroup has a direction and a set of smoke particles.
+ * The smoke particles are stored as individual tiny triangles of a TriangleMesh. The triangles are discrete (spread
+ * out in different areas).    The ParticleGroups move as a Group (cheaper than moving each individual particle) and
+ * when they reach their longevity, they ParticleGroups are restarted in a randomized initial location. ParticleGroups
+ * also rotate.
+ * 
+ * Member variables spread1OfParticles, spread2GroupSpread, and spread3ParticleGroupSpread control the spreading of 
+ * groups and particles.   The member variable motionSpeed controls how fat the particle Group moves. The member variable 
+ * longevity controls how long the particles live.  The member variable rotationSpeed controls how fast the ParticleGroups 
+ * rotate.  Not every member variable has a slider. 
+ * 
  * @author Donald A. Smith, ThinkerFeeler@gmail.com
  *
  */
@@ -52,9 +63,9 @@ public class Particles extends Application {
 	private double particleSize = 0.25;
 	private double rotationSpeed = 3.6*random.nextDouble();
 	private final double nozzleSize = 4;
-	private double spread1= 17.0;
-	private double spread2=0.4; // spread of direction of stream
-	private double spread3= 2.5;
+	private double spread1OfParticles= 17.0;
+	private double spread2GroupSpread=0.4; 
+	private double spread3ParticleGroupSpread= 2.5;
 	private double motionSpeed = 1.9;
 	private double minY = -200;
 	
@@ -97,7 +108,7 @@ public class Particles extends Application {
 	
 		public ParticleGroup(Point3D inDirection, Point3D nozzleLocation) {
 			super();
-			this.direction = inDirection.add(spread2*random.nextDouble(), spread2*random.nextDouble(),spread2*random.nextDouble()).normalize();
+			this.direction = inDirection.add(spread2GroupSpread*random.nextDouble(), spread2GroupSpread*random.nextDouble(),spread2GroupSpread*random.nextDouble()).normalize();
 			this.nozzleX = nozzleLocation.getX();
 			this.nozzleY = nozzleLocation.getY();
 			this.nozzleZ = nozzleLocation.getZ();
@@ -115,7 +126,7 @@ public class Particles extends Application {
 		}
 		private void initialize() {
 			setRotate(0);
-			double f = spread3*random.nextDouble();
+			double f = spread3ParticleGroupSpread*random.nextDouble();
 			setTranslateX(nozzleX+f*direction.getX());
 			setTranslateY(nozzleY+f*direction.getY());
 			setTranslateZ(nozzleZ+f*direction.getZ());
@@ -135,8 +146,8 @@ public class Particles extends Application {
 			for (int i = 0; i < numberOfParticlesInGroup; i++) {
 				final double offsetX = i % 2 == 0 ? 0 : particleSize;
 				final double offsetZ = particleSize - offsetX;
-				CPoint3D p1 = new CPoint3D(spread1*nozzleSize * (random.nextDouble() - 0.5),
-						spread1*2.0*(random.nextDouble() - 0.5), spread1*nozzleSize * (random.nextDouble() - 0.5));
+				CPoint3D p1 = new CPoint3D(spread1OfParticles*nozzleSize * (random.nextDouble() - 0.5),
+						spread1OfParticles*2.0*(random.nextDouble() - 0.5), spread1OfParticles*nozzleSize * (random.nextDouble() - 0.5));
 				CPoint3D p2 = new CPoint3D(p1.x + offsetX, p1.y, p1.z + offsetZ);
 				CPoint3D p3 = new CPoint3D(p1.x, p1.y - 1, p1.z);
 				addTriangleToMesh(p1, p2, p3, 0, 0, 0);
@@ -319,12 +330,12 @@ public class Particles extends Application {
 					System.out.println("windCycleFactor = " + windCycleFactor);
 					break;
 				case PAGE_UP:
-					spread1 *= f2;
-					System.out.println("spread = " + spread1);
+					spread1OfParticles *= f2;
+					System.out.println("spread = " + spread1OfParticles);
 					break;
 				case PAGE_DOWN:
-					spread1 /= f2;
-					System.out.println("spread = " + spread1);
+					spread1OfParticles /= f2;
+					System.out.println("spread = " + spread1OfParticles);
 					break;
 				case G:
 					if (ke.isControlDown()) {
@@ -441,13 +452,13 @@ public class Particles extends Application {
 		HBox motionSpeedSlider = makeSliderGroup("Speed", 0, 10, motionSpeed, () -> motionSpeed, d -> {
 			motionSpeed = d;
 		});
-		HBox spreadSlider = makeSliderGroup("Spread1", 0, 30, spread1, () -> spread1, d -> {
-			spread1 = d;
+		HBox spreadSlider = makeSliderGroup("Spread1", 0, 30, spread1OfParticles, () -> spread1OfParticles, d -> {
+			spread1OfParticles = d;
 			world.getChildren().clear();
 			particleGroups.clear();
 		});
-		HBox directionSpreadSlider = makeSliderGroup("Spread2", 0, 1, spread2, () -> spread2, d -> {
-			spread2 = d;
+		HBox directionSpreadSlider = makeSliderGroup("Spread2", 0, 1, spread2GroupSpread, () -> spread2GroupSpread, d -> {
+			spread2GroupSpread = d;
 			world.getChildren().clear();
 			particleGroups.clear();
 		});
