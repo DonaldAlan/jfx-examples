@@ -27,7 +27,11 @@ mvn compile
 
 
 ## To Run
-Run via commands like:
+Run via:
+
+    mvn javafx:run
+
+or commands like:
 
 /c/Program\ Files/Java/jdk1.8.0_221/bin/java -cp target/classes/ cloth.ClothMesh
 
