@@ -111,6 +111,7 @@ public class ClothMesh extends Application {
 	//private final int[][] meshPointsRealIndexesMatrix = new int[n][n]; // this index is yhe index in points Observable floats
 
 	private double lastTime = 0.0;
+	private double lastTimeForTitle = 0.0;
 	private Stage primaryStage;
 	private final List<Spring> springs = new ArrayList<>(); // Springs are global and are updated between steps
 	private final MutableVector3D _force = new MutableVector3D();
@@ -850,6 +851,7 @@ public class ClothMesh extends Application {
 	}
 	
 	//-----------------------------
+	private int cntr = 0;
 	private void animate() {
 		numberFormat.setMinimumFractionDigits(3);
 		numberFormat.setMaximumFractionDigits(3);
@@ -859,6 +861,7 @@ public class ClothMesh extends Application {
 				if (stopAnimation) {
 					return;
 				}
+				cntr++;
 				for(Spring spring:springs) {
 					spring.updateForce();
 				}
@@ -868,7 +871,12 @@ public class ClothMesh extends Application {
 					return;
 				}
 				final double timeDelta = seconds-lastTime;
-				primaryStage.setTitle(numberFormat.format(1.0/timeDelta) + " per second");
+				final double timeDeltaForTitle = seconds-lastTimeForTitle;
+				if (timeDeltaForTitle>1.0) {
+					primaryStage.setTitle(numberFormat.format(cntr/timeDeltaForTitle) + " per second");
+					lastTimeForTitle = seconds;
+					cntr=0;
+				}
 				lastTime = seconds;
 			
 				for(int row=0;row<n; row++) {
@@ -891,13 +899,13 @@ public class ClothMesh extends Application {
 		thisPoint.addSpringForcesToArgument(_force);
 		
 		final double magnitude=_force.magnitude();
-		if (magnitude>1) { // TODO: this is to prevent wild fluctuations from too-strong forces. It can be tuned.
+		if (magnitude>1) { // TODO: this is a hack to stop extreme values
 			_force.multiplyBy(1.0/magnitude);
 		}
 		_force.y += gravity;
 		
 		// I could take into consideration the angle between the wind and the piece of cloth
-		// (sin(x*y*t), cos(z*t), sin(cos(5*x*y*z))
+	// (sin(x*y*t), cos(z*t), sin(cos(5*x*y*z))
 		double windForceX = windForceFactor*Math.sin(0.3*windCycleFactor*time); //windForceFactor*Math.sin(windCycleFactor*thisPoint.x*thisPoint.y*time);
 		double windForceY = 0; //windForceFactor*Math.cos(windCycleFactor*thisPoint.z*time);
 		double windForceZ = 3.3*windForceFactor*(Math.sin(windCycleFactor*time+0.1*col));
