@@ -471,7 +471,7 @@ public class Particles extends Application {
 		});
 		HBox numberOfGroupsSlider = makeSliderGroup("# groups", 0, 2000, numberOfParticleGroups, () -> 0.0+numberOfParticleGroups, d -> {
 			numberOfParticleGroups = d.intValue();
-			while (particleGroups.size()>numberOfParticlesInGroup) {
+			while (particleGroups.size()>numberOfParticleGroups) {
 				ParticleGroup g = particleGroups.get(particleGroups.size()-1);
 				particleGroups.remove(g);
 				world.getChildren().remove(g);
