@@ -47,27 +47,21 @@ import javafx.stage.Stage;
  * when they reach their longevity, they ParticleGroups are restarted in a randomized initial location. ParticleGroups
  * also rotate.
  * 
- * Member variables spread1OfParticles, spread2GroupSpread, and spread3ParticleGroupSpread control the spreading of 
- * groups and particles.   The member variable motionSpeed controls how fat the particle Group moves. The member variable 
- * longevity controls how long the particles live.  The member variable rotationSpeed controls how fast the ParticleGroups 
- * rotate.  Not every member variable has a slider. 
- * 
  * @author Donald A. Smith, ThinkerFeeler@gmail.com
  *
  */
 public class Particles extends Application {
-	private static int numberOfParticleGroups = 500;
-	private int numberOfParticlesInGroup = 1000;
+	private double groupLengthLongevity = 200;
+	private static int numberOfParticleGroups = 120;
+	private int numberOfParticlesInGroup = 6000;
 	private final Point3D direction = new Point3D(1.0,-1,0).normalize();
-	private final Point3D nozzleLocation = new Point3D(-100,140,0);  
+	private final Point3D nozzleLocation = new Point3D(-50,140,0);  
 	private double particleSize = 0.25;
 	private double rotationSpeed = 3.6*random.nextDouble();
-	private final double nozzleSize = 4;
-	private double spread1OfParticles= 17.0;
-	private double spread2GroupSpread=0.4; 
-	private double spread3ParticleGroupSpread= 2.5;
+	private double nozzleSize = 20;
+	private double directionSpread1=0.1; 
+	private double spread2ParticleGroupSpread= 2.0;
 	private double motionSpeed = 1.9;
-	private double minY = -200;
 	
 	///.......
 	private double windCycleFactor = 0.04;
@@ -91,7 +85,8 @@ public class Particles extends Application {
 
 	private final Group gridGroup = new Group();
 	private final List<ParticleGroup> particleGroups = new ArrayList<>();
-
+	private Slider _slider;
+	//-------------------
 	private class ParticleGroup extends Group {
 		private final TriangleMesh mesh = new TriangleMesh();
 		private final ObservableFloatArray points = mesh.getPoints();
@@ -100,19 +95,18 @@ public class Particles extends Application {
 		// new Image("file:imgs/pattern.jpg");
 		private final MeshView meshView = new MeshView();
 		private final Point3D direction;
-		private final double nozzleX;
-		private final double nozzleY;
-		private final double nozzleZ;
-		
+		private final Point3D nozzleLocation;
+		private double startX;
+		private double startY;
+		private double startZ;
 		//........
 	
-		public ParticleGroup(Point3D inDirection, Point3D nozzleLocation) {
+		public ParticleGroup(final Point3D inDirection, final Point3D nozzleLocation) {
 			super();
-			this.direction = inDirection.add(spread2GroupSpread*random.nextDouble(), spread2GroupSpread*random.nextDouble(),spread2GroupSpread*random.nextDouble()).normalize();
-			this.nozzleX = nozzleLocation.getX();
-			this.nozzleY = nozzleLocation.getY();
-			this.nozzleZ = nozzleLocation.getZ();
-			initialize();
+			this.nozzleLocation = nozzleLocation;
+			this.direction = inDirection.add(directionSpread1*(random.nextDouble()-0.5), 
+					directionSpread1*(random.nextDouble()-0.5),directionSpread1*(random.nextDouble()-0.5)).normalize();
+		
 			mesh.setVertexFormat(VertexFormat.POINT_TEXCOORD);
 			meshView.setCullFace(CullFace.NONE);
 			meshView.setDrawMode(DrawMode.FILL);
@@ -123,20 +117,25 @@ public class Particles extends Application {
 			getChildren().add(meshView);
 			buildParticles();
 			setRotationAxis(inDirection);
+			initialize(true);
+			
 		}
-		private void initialize() {
-			setRotate(0);
-			double f = spread3ParticleGroupSpread*random.nextDouble();
-			setTranslateX(nozzleX+f*direction.getX());
-			setTranslateY(nozzleY+f*direction.getY());
-			setTranslateZ(nozzleZ+f*direction.getZ());
+		private void initialize(boolean first) {
+			//final double f = first?  groupLength *random.nextDouble() : 0;
+			startX = nozzleLocation.getX();//+ f * direction.getX();
+			startY = nozzleLocation.getY(); //+ f * direction.getY();
+			startZ = nozzleLocation.getZ(); //+ f * direction.getZ();
+			setTranslateX(startX);
+			setTranslateY(startY);
+			setTranslateZ(startZ);
 		}
 		public void move() {
 			setRotate(rotationSpeed+getRotate());
-			if (getTranslateY() < minY) { // TODO make maxLength
-				initialize();
+			double length = Math.sqrt(square(getTranslateX()-nozzleLocation.getX())+square(getTranslateY()-nozzleLocation.getY())+ square(getTranslateZ()-nozzleLocation.getZ()));
+			if (length> groupLengthLongevity) { 
+				initialize(false);
 			} else {
-				setTranslateX(motionSpeed*direction.getX()+ getTranslateX());
+				setTranslateX(motionSpeed*direction.getX() + getTranslateX());
 				setTranslateY(motionSpeed*direction.getY() + getTranslateY());
 				setTranslateZ(motionSpeed*direction.getZ() + getTranslateZ());
 			}
@@ -144,19 +143,31 @@ public class Particles extends Application {
 		public Group buildParticles() {
 			final Group group = new Group();
 			for (int i = 0; i < numberOfParticlesInGroup; i++) {
+				final double len = groupLengthLongevity *random.nextDouble();
+				double x = len*direction.getX();
+				double y = len*direction.getY();
+				double z = len*direction.getZ();
+				double nozzleSpread=random.nextDouble();
+				final double lenRatio = len/groupLengthLongevity;
+//				double x= nozzleX + len*nozzleSpread*nozzleSize*perpendicular.getX();
+//				double y= nozzleY + len*nozzleSpread*nozzleSize*perpendicular.getY();
+//				double z= nozzleZ + len*nozzleSpread*nozzleSize*perpendicular.getZ();
+				Point3D perpendicular = getRandomPerpendicular(direction);
+				double perpF = nozzleSize *nozzleSpread * (1.0+ lenRatio*spread2ParticleGroupSpread);
+				x += perpF * perpendicular.getX();
+				y += perpF * perpendicular.getY();
+				z += perpF * perpendicular.getZ();
 				final double offsetX = i % 2 == 0 ? 0 : particleSize;
 				final double offsetZ = particleSize - offsetX;
-				CPoint3D p1 = new CPoint3D(spread1OfParticles*nozzleSize * (random.nextDouble() - 0.5),
-						spread1OfParticles*2.0*(random.nextDouble() - 0.5), spread1OfParticles*nozzleSize * (random.nextDouble() - 0.5));
+				CPoint3D p1 = new CPoint3D(x,y,z);
 				CPoint3D p2 = new CPoint3D(p1.x + offsetX, p1.y, p1.z + offsetZ);
 				CPoint3D p3 = new CPoint3D(p1.x, p1.y - 1, p1.z);
 				addTriangleToMesh(p1, p2, p3, 0, 0, 0);
 			}
 			mesh.getTexCoords().addAll(0, 0);
-			//System.out.println("n = " + n + ", #faces = " + faces.size() / 3 + ", #points = " + points.size() / 3);
 			return group;
 		}
-
+		
 	
 		private class CPoint3D {
 			double x, y, z;
@@ -183,8 +194,9 @@ public class Particles extends Application {
 			public double getZ() {
 				return z;
 			}
-		}
-
+		} // CPoint3D
+		
+	
 
 		private int getOrSetLogicalIndex(CPoint3D p) {
 			if (p.meshPointRealIndex < 0) {
@@ -203,10 +215,47 @@ public class Particles extends Application {
 
 	
 	} // ParticleGroup
+	
+	   static Point3D perp2;
+       /**
+        * Leaves a vector perpendicular to vector in the static global variable perp2;
+        * @param vector
+        * @return a vector perpendicular to vector.
+        */
+       public static Point3D getRandomPerpendicular(Point3D vector) {
+               // We need to find vector perp that is perpendicular to diffVector in 3d.
+               // It has the property   perp.dotProduct(diffVector)=0.
+               //   Let perp = (x,y,z).  So, we want
+               //     x*vector.getX() + y*vector.getY() + z*vector.getZ() = 0.
+               // Assume vector.getX()!=0.  If vector.getX()==0, use Y or Z.
+               //     x*vector.getX() = -( y*vector.getY() + z*vector.getZ());
+               //     x = -(y*vector.getY() + z*vector.getZ())/vector.getX().
+               // Let y and z be random doubles
+    	   if (Math.abs(vector.getX()) > 0.001) {
+    		   double y = random.nextDouble()-0.5;
+    		   double z = random.nextDouble()-0.5;
+    		   double x = - (y*vector.getY() + z*vector.getZ())/vector.getX();
+    		   return new Point3D(x,y,z).normalize();
+    	   } else if (Math.abs(vector.getY()) > 0.001) {
+    		   double x = random.nextDouble()-0.5;
+    		   double z = random.nextDouble()-0.5;
+    		   double y = - (x*vector.getX() + z*vector.getZ())/vector.getY();
+    		   return new Point3D(x,y,z).normalize();
+    	   } else {
+    		   double x = random.nextDouble()-0.5;
+    		   double y = random.nextDouble()-0.5;
+    		   double z = - (x*vector.getX() + y*vector.getY())/vector.getZ();
+    		   return new Point3D(x,y,z).normalize();
+    	   }
+       }
+
+	
 	private static String format(double d) {
 		return numberFormat.format(d);
 	}
-
+	private static double square(final double d) {
+		return d*d;
+	}
 	// -------------------------
 	private static class XformWorld extends Group {
 		final Translate t = new Translate(0.0, 0.0, 0.0);
@@ -330,12 +379,12 @@ public class Particles extends Application {
 					System.out.println("windCycleFactor = " + windCycleFactor);
 					break;
 				case PAGE_UP:
-					spread1OfParticles *= f2;
-					System.out.println("spread = " + spread1OfParticles);
+					nozzleSize *= f2;
+					System.out.println("spread = " + nozzleSize);
 					break;
 				case PAGE_DOWN:
-					spread1OfParticles /= f2;
-					System.out.println("spread = " + spread1OfParticles);
+					nozzleSize /= f2;
+					System.out.println("spread = " + nozzleSize);
 					break;
 				case G:
 					if (ke.isControlDown()) {
@@ -391,8 +440,8 @@ public class Particles extends Application {
 
 	public static void main(String[] args) {
 		try {
-			numberFormat.setMaximumFractionDigits(0);
-			numberFormat.setMinimumFractionDigits(0);
+			numberFormat.setMaximumFractionDigits(2);
+			numberFormat.setMinimumFractionDigits(2);
 			// test(); System.exit(0);
 			launch(args);
 		} catch (Exception exc) {
@@ -400,6 +449,16 @@ public class Particles extends Application {
 		}
 	}
 
+	/**
+	 * Leaves slider in _slider
+	 * @param name
+	 * @param min
+	 * @param max
+	 * @param initialValue
+	 * @param supplier
+	 * @param setter
+	 * @return HBox holding slider
+	 */
 	private HBox makeSliderGroup(String name, double min, double max, final double initialValue,
 			Supplier<Double> supplier, Consumer<Double> setter) {
 		final HBox hbox = new HBox(10);
@@ -409,6 +468,7 @@ public class Particles extends Application {
 		nameLabel.setFont(font);
 		nameLabel.setTextFill(Color.WHITE);
 		final Slider slider = new Slider(min, max, initialValue);
+		_slider = slider;
 		slider.setValue(supplier.get());
 		final Label valueLabel = new Label();
 		valueLabel.setText(numberFormat.format(slider.getValue()));
@@ -444,49 +504,67 @@ public class Particles extends Application {
 		return hbox;
 	}
 
+
 	private void buildSliders() {
 		VBox vbox = new VBox(10);
 		vbox.setTranslateX(-400);
 		vbox.setTranslateY(-220);
 		vbox.setTranslateZ(-20);
-		HBox motionSpeedSlider = makeSliderGroup("Speed", 0, 10, motionSpeed, () -> motionSpeed, d -> {
+		HBox motionSpeedSliderHBox = makeSliderGroup("Speed", 0, 10, motionSpeed, () -> motionSpeed, d -> {
 			motionSpeed = d;
 		});
-		HBox spreadSlider = makeSliderGroup("Spread1", 0, 30, spread1OfParticles, () -> spread1OfParticles, d -> {
-			spread1OfParticles = d;
+		HBox nozzleSizeSliderHBox = makeSliderGroup("Nozzle size", 0, 50, nozzleSize, () -> nozzleSize, d -> {
+			nozzleSize = d;
 			world.getChildren().clear();
 			particleGroups.clear();
 		});
-		HBox directionSpreadSlider = makeSliderGroup("Spread2", 0, 1, spread2GroupSpread, () -> spread2GroupSpread, d -> {
-			spread2GroupSpread = d;
+//		HBox directionSpreadSlider = makeSliderGroup("Spread1", 0, 1, directionSpread1, () -> directionSpread1, d -> {
+//			directionSpread1 = d;
+//			world.getChildren().clear();
+//			particleGroups.clear();
+//		});
+		HBox particleGroupSpreadSliderHBox = makeSliderGroup("Spread", 0, 4, spread2ParticleGroupSpread, () -> spread2ParticleGroupSpread, d -> {
+			spread2ParticleGroupSpread = d;
 			world.getChildren().clear();
 			particleGroups.clear();
 		});
-		HBox particlesSlider = makeSliderGroup("# particles", 0, 5000, numberOfParticlesInGroup, () -> 0.0+numberOfParticlesInGroup, d -> {
+		HBox particlesSliderHBox = makeSliderGroup("# particles", 0, 10000, numberOfParticlesInGroup, () -> 0.0+numberOfParticlesInGroup, d -> {
 			{
 				numberOfParticlesInGroup = d.intValue();
 				world.getChildren().clear();
 				particleGroups.clear();
 			}
 		});
-		HBox numberOfGroupsSlider = makeSliderGroup("# groups", 0, 2000, numberOfParticleGroups, () -> 0.0+numberOfParticleGroups, d -> {
+		final Slider longevitySlider[] = {null};
+		final HBox numberOfGroupsSliderHBox = makeSliderGroup("# groups", 0, 500, numberOfParticleGroups, () -> 0.0+numberOfParticleGroups, d -> {
 			numberOfParticleGroups = d.intValue();
 			while (particleGroups.size()>numberOfParticleGroups) {
-				ParticleGroup g = particleGroups.get(particleGroups.size()-1);
-				particleGroups.remove(g);
+				ParticleGroup g = particleGroups.remove(particleGroups.size()-1);
 				world.getChildren().remove(g);
+			}
+			if (numberOfParticleGroups < 0.6*groupLengthLongevity) {
+				longevitySlider[0].setValue(numberOfParticleGroups/0.6);
 			}
 		});
 		
-		HBox longevitySlider = makeSliderGroup("lifespan", 0, 400, minY, () -> -minY+150, d -> {
-			minY = -(d-150);
+		final Slider numberOfParticleGroupsSlider = _slider;
+		final HBox longevitySliderHBox = makeSliderGroup("lifespan", 0, 400, groupLengthLongevity, () -> groupLengthLongevity, d -> {
+			groupLengthLongevity = d;
+			if (numberOfParticleGroups < 0.6*groupLengthLongevity) {
+				numberOfParticleGroups = (int)(0.6 *groupLengthLongevity);
+				numberOfParticleGroupsSlider.setValue(numberOfParticleGroups);
+			}
+			world.getChildren().clear();
+			particleGroups.clear();
 		});
-		vbox.getChildren().add(motionSpeedSlider);
-		vbox.getChildren().add(spreadSlider);
-		vbox.getChildren().add(directionSpreadSlider);
-		vbox.getChildren().add(particlesSlider);
-		vbox.getChildren().add(numberOfGroupsSlider);
-		vbox.getChildren().add(longevitySlider);
+		longevitySlider[0] = _slider;
+		vbox.getChildren().add(motionSpeedSliderHBox);
+		vbox.getChildren().add(nozzleSizeSliderHBox);
+		//vbox.getChildren().add(directionSpreadSlider);
+		vbox.getChildren().add(particleGroupSpreadSliderHBox);
+		vbox.getChildren().add(particlesSliderHBox);
+		vbox.getChildren().add(numberOfGroupsSliderHBox);
+		vbox.getChildren().add(longevitySliderHBox);
 //		vbox.setScaleX(1.25);
 //		vbox.setScaleY(1.25);
 		root.getChildren().add(vbox);
@@ -511,7 +589,6 @@ public class Particles extends Application {
 		scene.setCamera(camera);
 		primaryStage.show();
 		animate();
-		System.out.println(direction);
 	}
 	// -----------------------------
 	private void animate() {
