@@ -10,16 +10,22 @@ By Donald A. Smith, ThinkerFeeler@gmail.com
  and the simulation speed.
 
 
- See cloth-screenshot.jpg for a screenshot.
+ See imgs/cloth-screenshot.jpg for a screenshot.
 
- ![Cloth Model Screenshot](cloth-screenshot.jpg)
+ ![Cloth Model Screenshot](imgs/cloth-screenshot.jpg)
 
  Video at https://youtu.be/O7H5Y_y7Ytk
 
 ### particles.Particles
 
 Simulation of smoke/particles, with sliders that let you control the shape, size, and longevity of the smoke.
- ![Particles/Smoke Screenshot](particles.jpg)
+ ![Particles/Smoke Screenshot](imgs/particles.jpg)
+
+
+### Tube mesh
+
+ ![Tube Mesh Screenshot 1](imgs/tube1.jpg) ![Tube Mesh Screenshot 2](imgs/tube2.jpg)
+ ![Tube Mesh Screenshot 3](imgs/tube3.jpg) ![Tube Mesh Screenshot 4](imgs/tube4.png)
 
 
 ## To Build
