@@ -41,27 +41,6 @@ public class Tube extends MeshView {
 		final Point3D diffVector = end.subtract(start);
 		final Point3D perp1 = Utilities.getPerpendiculars(diffVector);
 		final Point3D perp2 = Utilities._perp2;
-//		int imageWidth = 1;
-//		int imageHeight = 1;
-//		if (material instanceof PhongMaterial) {
-//			PhongMaterial phongMaterial = (PhongMaterial) material;
-//			Image image = null;
-//			image = phongMaterial.getSelfIlluminationMap();
-//			if (image == null) {
-//				image = phongMaterial.getDiffuseMap();
-//			}
-//			if (image != null) {
-//				imageWidth = (int) image.getWidth();
-//				imageHeight = (int) image.getHeight();
-//			}
-//		}
-//		for (int row = 0; row <= imageHeight; row++) {
-//			final float ty = (row + 0.0f) / imageWidth;
-//			for (int col = 0; col <= imageWidth; col += imageWidth) { // only two
-//				final float tx = (col + 0.0f) / imageWidth;
-//				mesh.getTexCoords().addAll(tx, ty);
-//			}
-//		}
 		for(int row=0;row<n;row++) {
 			final float ty = (row+0.0f)/(n-1);// (n-row-1.0f)/n; 
 			mesh.getTexCoords().addAll(ty,1.0f);
@@ -96,6 +75,5 @@ faces.size() = 240
 			faces.addAll(row2,     tt,             row2 + 3,     (tt + 3) % nn, (row2 + 2)%nn, (tt + 2) % nn); // t1 t2 t1
 			//faces.addAll(row2 + 1, (tt + 1) % nn, (row2 + 2)%nn, (tt + n) % nn, (row2 + 3)%nn, (tt + n + 1) % nn);
 		}
-		System.out.println("faces.size() = " + faces.size());
 	} // private void build
 } // Tube
