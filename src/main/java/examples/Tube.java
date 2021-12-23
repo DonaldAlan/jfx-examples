@@ -24,7 +24,7 @@ public class Tube extends MeshView {
 	private final Point3D start;
 	private final Point3D end;
 
-	public Tube(final Point3D start, final Point3D end, final int n, final double radius, final Material material) {
+	public Tube(final Point3D start, final Point3D end, final int divisions, final double radius, final Material material) {
 		super();
 		this.start = start;
 		this.end = end;
@@ -33,29 +33,29 @@ public class Tube extends MeshView {
 		setCullFace(CullFace.NONE);
 		setDrawMode(DrawMode.FILL);
 		setMaterial(material);
-		build(n, radius, material);
+		build(divisions, radius, material);
 		// System.out.println("Tube " + start + " -- " + end);
 	}
 
-	private void build(final int n, final double radius, final Material material) {
+	private void build(final int divisions, final double radius, final Material material) {
 		final Point3D diffVector = end.subtract(start);
 		final Point3D perp1 = Utilities.getPerpendiculars(diffVector);
 		final Point3D perp2 = Utilities._perp2;
-		for(int row=0;row<n;row++) {
-			final float ty = (row+0.0f)/(n-1);// (n-row-1.0f)/n; 
+		for(int row=0;row<divisions;row++) {
+			final float ty = (row+0.0f)/(divisions-1);// (n-row-1.0f)/n; 
 			mesh.getTexCoords().addAll(ty,1.0f);
 			mesh.getTexCoords().addAll(ty,0.0f);
 		}
-		System.out.println("n = " + n // + ", imageWidth = " + imageWidth + ", imageHeight = " + imageHeight 
+		System.out.println("n = " + divisions // + ", imageWidth = " + imageWidth + ", imageHeight = " + imageHeight 
 				+ ", mesh.getTexCoords().size = " + mesh.getTexCoords().size());
 /*
 n = 20, imageWidth = 2500, imageHeight = 1250, mesh.getTexCoords().size = 5000
 faces.size() = 240	
  */
-		final double angleDelta = 2.0 * Math.PI / (n-1);
-		final int nn = n + n;
+		final double angleDelta = 2.0 * Math.PI / (divisions-1);
+		final int nn = divisions + divisions;
 		double angle = 0.0;
-		for (int row = 0; row <= n; row++) {
+		for (int row = 0; row <= divisions; row++) {
 			Point3D p1 = perp1.multiply(radius * Math.sin(angle));
 			Point3D p2 = perp2.multiply(radius * Math.cos(angle));
 			double x1 = start.getX() + p1.getX() + p2.getX();
@@ -68,7 +68,7 @@ faces.size() = 240
 			points.addAll((float) x2, (float) y2, (float) z2); // right
 			angle += angleDelta;
 		} // for i
-		for (int row = 0; row < n; row ++) {
+		for (int row = 0; row < divisions; row ++) {
 			final int row2=(row+row)%nn;
 			final int tt = row2;
 			faces.addAll(row2,     tt,             row2 + 1,     (tt + 1) % nn, (row2 + 3)%nn, (tt + 3) % nn); // t1 t2 t1
