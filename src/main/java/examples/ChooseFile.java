@@ -13,7 +13,7 @@ import javafx.stage.Stage;
 
 public class ChooseFile {
 	public final File selectedFile=null;
-	private File initialDirectory = new File("D:/3DModels");
+	private File initialDirectory = new File("imgs");
 	private String initialFileName=null;
 	private static final String filePathForStoredInitialDirectoryAndFilename="last-read.txt";
 	private void populateInitialDirectoryAndFileName() {
@@ -33,7 +33,7 @@ public class ChooseFile {
 			}
 		} catch (Throwable thr) {
 			thr.printStackTrace();
-		}
+		}	
 	}
 	private void saveInitialDirectoryAndFilename(File file) {
 		try {
