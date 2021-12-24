@@ -10,7 +10,6 @@ import java.util.function.Consumer;
 
 import javax.imageio.ImageIO;
 
-import examples.Spiral;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.embed.swing.SwingFXUtils;
@@ -21,6 +20,7 @@ import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyEvent;
@@ -40,9 +40,9 @@ import javafx.stage.Stage;
 public class TestTube extends Application {
 	private Group root = new Group();
 	private final XformCamera cameraXform = new XformCamera();
-	private static double cameraInitialX = 0;
-	private static double cameraInitialY = 0;
-	private static double cameraInitialZ = -40;
+	private static double cameraInitialX = 20;
+	private static double cameraInitialY = 10;
+	private static double cameraInitialZ = -80;
 	private static final double CAMERA_NEAR_CLIP = 0.1;
 	private static final double CAMERA_FAR_CLIP = 16000.0;
 	private static final Point3D X_AXIS = new Point3D(1,0,0);
@@ -267,10 +267,14 @@ public class TestTube extends Application {
 				if (!animate) {
 					return;
 				}
-				tube.setRotate(0.1+tube.getRotate());
+				tube.setRotate(0.4+tube.getRotate());
 			}
            };
            timer.start();
+	}
+	private static int addAlpha(int rgb) {
+		rgb ^= (128 << 24);
+		return rgb;
 	}
 	private void showTube(File file) throws IOException {
 		if (file==null) {
@@ -278,7 +282,20 @@ public class TestTube extends Application {
 		}
 		final PhongMaterial material = new PhongMaterial();
 		BufferedImage bufferedImage = ImageIO.read(file);
-		material.setDiffuseMap(SwingFXUtils.toFXImage(bufferedImage,null));
+
+		final WritableImage image = new WritableImage(bufferedImage.getWidth(),bufferedImage.getHeight());
+		SwingFXUtils.toFXImage(bufferedImage,image);
+		// TODO: figure out why the alpha applies to only half the image
+		if (false) {
+			final PixelReader pixelReader = image.getPixelReader(); 
+			PixelWriter pixelWriter = image.getPixelWriter();
+			for(int row=0;row<image.getHeight();row++) {
+				for(int col=0;col<image.getWidth();col++) {
+					pixelWriter.setArgb(col, row, addAlpha(pixelReader.getArgb(col,row)));
+				}
+			}
+		}
+		material.setDiffuseMap(image);
 		Point3D p1 = new Point3D(0,0,0);
 		Point3D p2 = new Point3D(100,20,-20);
 		tube = new Tube(p1, p2,  20,30, material);
@@ -293,6 +310,7 @@ public class TestTube extends Application {
 		handleKeyEvents(scene);
 		handleMouse(scene);
 		buildCamera();
+		world.ry.setAngle(45.0);
 		
 		ExtensionFilter filter = new ExtensionFilter("Images", "*.jpg","*.png","*.jpeg");
 		new ChooseFile(primaryStage,"Choose image",filter,new Consumer<File>() {
