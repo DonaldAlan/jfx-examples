@@ -264,7 +264,7 @@ public class TestTube extends Application {
 		final AnimationTimer timer= new AnimationTimer() {
 			@Override
 			public void handle(long nowInNanoSeconds) {
-//				world.setRotate(0.3+world.getRotate());
+				tube.setRotate(0.3+tube.getRotate());
 				if (!animate) {
 					return;
 				}
