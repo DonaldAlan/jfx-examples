@@ -19,6 +19,7 @@ import javafx.scene.AmbientLight;
 import javafx.scene.Group;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
@@ -40,9 +41,9 @@ import javafx.stage.Stage;
 public class TestTube extends Application {
 	private Group root = new Group();
 	private final XformCamera cameraXform = new XformCamera();
-	private static double cameraInitialX = 20;
+	private static double cameraInitialX = 120;
 	private static double cameraInitialY = 10;
-	private static double cameraInitialZ = -80;
+	private static double cameraInitialZ = -180;
 	private static final double CAMERA_NEAR_CLIP = 0.1;
 	private static final double CAMERA_FAR_CLIP = 16000.0;
 	private static final Point3D X_AXIS = new Point3D(1,0,0);
@@ -51,7 +52,7 @@ public class TestTube extends Application {
 	private double mousePosX, mousePosY, mouseOldX, mouseOldY, mouseDeltaX, mouseDeltaY;
 	private final PerspectiveCamera camera = new PerspectiveCamera(true);
 	private final XformWorld world = new XformWorld();
-	private boolean animate = true;
+	private boolean animate = false;
 	private final List<MeshView> meshViews = new ArrayList<>();
 	private Cylinder c;
 	private final Rotate rx = new Rotate(0,X_AXIS); 
@@ -130,17 +131,17 @@ public class TestTube extends Application {
 			mouseDeltaX = (mousePosX - mouseOldX);
 			mouseDeltaY = (mousePosY - mouseOldY);
 			if (me.isPrimaryButtonDown()) {
-				// this is done when the mouse is dragged and each rotation is
-				// performed in coordinates, that are rotated with the camera.
-				world.ry.setAngle(world.ry.getAngle() + mouseDeltaX * 0.2);
-				world.rx.setAngle(world.rx.getAngle() - mouseDeltaY * 0.2);
-
-				// world.ry.setAngle(world.ry.getAngle() + mouseDeltaX * 0.2);
-				// world.rx.setAngle(world.rx.getAngle() - mouseDeltaY * 0.2);
+				if (me.isControlDown()) {
+					world.rz.setAngle(mouseDeltaX+world.rz.getAngle());
+				} else {
+					world.ry.setAngle(world.ry.getAngle() + mouseDeltaX * 0.2);
+					world.rx.setAngle(world.rx.getAngle() - mouseDeltaY * 0.2);
+				}
 			} else if (me.isSecondaryButtonDown()) {
 				world.t.setZ(world.t.getZ() - mouseDeltaY);
 				world.t.setX(world.t.getX() - mouseDeltaX);
 			}
+		//	System.out.println("world.rx = " + world.rx.getAngle()+ ", world.ry = " + world.ry.getAngle() + ", world.rz = " + world.rz.getAngle());
 		});
 	}
 	private void reset() {
@@ -260,20 +261,25 @@ public class TestTube extends Application {
 	private static Point3D getRandomVector(final double length) {
 		return new Point3D(random.nextDouble()-0.5,random.nextDouble()-0.5,random.nextDouble()-0.5).normalize().multiply(length);
 	}
+	double ratioFlat = 0.0;
 	private void animate() {
 		final AnimationTimer timer= new AnimationTimer() {
 			@Override
 			public void handle(long nowInNanoSeconds) {
+//				world.setRotate(0.3+world.getRotate());
 				if (!animate) {
 					return;
 				}
-				tube.setRotate(0.4+tube.getRotate());
+				tube.flatten(ratioFlat);
+				if (ratioFlat<1) {
+					ratioFlat = Math.min(1.0, ratioFlat+ 0.001);
+				}
 			}
            };
            timer.start();
 	}
 	private static int addAlpha(int rgb) {
-		rgb ^= (128 << 24);
+		rgb ^= (127 << 24);
 		return rgb;
 	}
 	private void showTube(File file) throws IOException {
@@ -296,16 +302,19 @@ public class TestTube extends Application {
 			}
 		}
 		material.setDiffuseMap(image);
-		Point3D p1 = new Point3D(0,0,0);
-		Point3D p2 = new Point3D(100,20,-20);
-		tube = new Tube(p1, p2,  20,30, material);
+		Point3D p1 = new Point3D(-40,-140,0);
+		Point3D p2 = new Point3D(60,-40,100);
+		Point3D delta = p2.subtract(p1).multiply(0.1);
+		tube = new Tube(p1,p2,20, 50,material);
 		tube.setRotationAxis(p1.subtract(p2));
 		world.getChildren().add(tube);
+		p1 = p1.add(delta);
+		p2 = p2.add(delta);
 	}
 	public void startAux(final Stage primaryStage) throws Exception {
 		Scene scene = new Scene(root, 1600, 1000, true);
 		scene.setFill(Color.DARKGREY.darker().darker());
-		primaryStage.setTitle("TestTube");
+		primaryStage.setTitle("Test Tube");
 		root.getChildren().add(world);
 		handleKeyEvents(scene);
 		handleMouse(scene);
@@ -327,11 +336,29 @@ public class TestTube extends Application {
 		AmbientLight light = new AmbientLight(Color.WHITE);
 		root.getChildren().add(light);
 
+		final Button button = new Button("Flatten");
+		button.setTranslateX(600);
+		button.setTranslateY(-250);
+		button.setTextFill(Color.RED);
+		button.setOnAction(e -> {
+			animate = !animate;
+			if (animate) {
+				button.setTextFill(Color.GREEN);
+				button.setText("Stop  ");
+			} else {
+				button.setTextFill(Color.RED);
+				button.setText("Animate");
+			}
+			});
+		root.getChildren().add(button);
+		
+		world.rx.setAngle(-69);
+		world.ry.setAngle(-146);
+		world.rz.setAngle(-162);
 		scene.setCamera(camera);
 		primaryStage.setScene(scene);
 		primaryStage.show();
 		animate();
 	}
-
 	
 }
