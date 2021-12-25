@@ -41,7 +41,7 @@ import javafx.stage.Stage;
 public class TestTube extends Application {
 	private Group root = new Group();
 	private final XformCamera cameraXform = new XformCamera();
-	private static double cameraInitialX = 120;
+	private static double cameraInitialX = 140;
 	private static double cameraInitialY = 10;
 	private static double cameraInitialZ = -180;
 	private static final double CAMERA_NEAR_CLIP = 0.1;
@@ -141,7 +141,7 @@ public class TestTube extends Application {
 				world.t.setZ(world.t.getZ() - mouseDeltaY);
 				world.t.setX(world.t.getX() - mouseDeltaX);
 			}
-		//	System.out.println("world.rx = " + world.rx.getAngle()+ ", world.ry = " + world.ry.getAngle() + ", world.rz = " + world.rz.getAngle());
+			//System.out.println("world.rx = " + world.rx.getAngle()+ ", world.ry = " + world.ry.getAngle() + ", world.rz = " + world.rz.getAngle());
 		});
 	}
 	private void reset() {
@@ -156,8 +156,6 @@ public class TestTube extends Application {
 	private void handleKeyEvents(Scene scene) {
 		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
 			public void handle(KeyEvent ke) {
-				// System.out.println("Key rotation = " + root.rx.getAngle() + ", " +
-				// root.ry.getAngle() + " " + root.rz.getAngle());
 				final double delta = (ke.isShiftDown() ? 100 : 10);
 				switch (ke.getCode()) {
 				case Q:
@@ -353,12 +351,11 @@ public class TestTube extends Application {
 		root.getChildren().add(button);
 		
 		world.rx.setAngle(-69);
-		world.ry.setAngle(-146);
-		world.rz.setAngle(-162);
+		world.ry.setAngle(-214);
+		world.rz.setAngle(253);
 		scene.setCamera(camera);
 		primaryStage.setScene(scene);
 		primaryStage.show();
 		animate();
 	}
-	
 }
