@@ -38,8 +38,6 @@ public class Tube extends MeshView {
 		diffVector = end.subtract(start);
 		perp1 = Utilities.getPerpendiculars(diffVector);
 		perp2 = Utilities._perp2;
-		System.out.println(perp1);
-		System.out.println(perp2);
 		setMesh(mesh);
 		mesh.setVertexFormat(VertexFormat.POINT_TEXCOORD);
 		setCullFace(CullFace.NONE);
@@ -55,8 +53,8 @@ public class Tube extends MeshView {
 			mesh.getTexCoords().addAll(ty,1.0f);
 			mesh.getTexCoords().addAll(ty,0.0f);
 		}
-		System.out.println("n = " + divisions // + ", imageWidth = " + imageWidth + ", imageHeight = " + imageHeight 
-				+ ", mesh.getTexCoords().size = " + mesh.getTexCoords().size());
+//		System.out.println("n = " + divisions // + ", imageWidth = " + imageWidth + ", imageHeight = " + imageHeight 
+//				+ ", mesh.getTexCoords().size = " + mesh.getTexCoords().size());
 /*
 n = 20, imageWidth = 2500, imageHeight = 1250, mesh.getTexCoords().size = 5000
 faces.size() = 240	

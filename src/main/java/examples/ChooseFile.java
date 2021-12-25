@@ -27,7 +27,7 @@ public class ChooseFile {
 				if (directory.exists() && directory.isDirectory()) {
 					initialDirectory = directory;
 					initialFileName = reader.readLine();
-					System.out.println("initialFileName = " + initialFileName);
+					//System.out.println("initialFileName = " + initialFileName);
 				}
 				reader.close();
 			}
@@ -54,7 +54,7 @@ public class ChooseFile {
 		 populateInitialDirectoryAndFileName();
 		 fileChooser.setInitialDirectory(initialDirectory);
 		 if (initialFileName!=null) {
-			 System.out.println("Using initialFileName " + initialFileName);
+			 //System.out.println("Using initialFileName " + initialFileName);
 			 fileChooser.setInitialFileName(initialFileName);
 		 }
 		 if (filter!=null) {
@@ -68,7 +68,7 @@ public class ChooseFile {
 //		         new ExtensionFilter("All Files", "*.*"));
 		 File selectedFile = fileChooser.showOpenDialog(primaryStage);
 		 if (selectedFile != null) {
-			 System.out.println(selectedFile);
+			 //System.out.println(selectedFile);
 			 saveInitialDirectoryAndFilename(selectedFile);
 		 }
 		 consumer.accept(selectedFile);

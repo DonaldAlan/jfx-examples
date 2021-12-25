@@ -100,7 +100,6 @@ public class TestTube extends Application {
 		}
 	@Override
 	public void init() {
-		System.out.println("Init");
 	}
 	private void handleMouse(Scene scene) {
 		scene.setOnMousePressed((MouseEvent me) -> {
