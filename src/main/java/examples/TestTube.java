@@ -71,7 +71,7 @@ public class TestTube extends Application {
 	private static final Random random = new Random();
 	private Tube tube;
 	private boolean flattening = true;
-	private final Button flattenUnFlattenButton = new Button("Flatten");
+	private final Button flattenUnFlattenButton = new Button("Stopped");
 	// -------------------------
 	private static class XformWorld extends Group {
 		final Translate t = new Translate(0.0, 0.0, 0.0);
@@ -333,7 +333,7 @@ public class TestTube extends Application {
 	private void stopAnimation() {
 		animate = false;
 		flattenUnFlattenButton.setTextFill(Color.RED);
-		flattenUnFlattenButton.setText(flattening? "Flatten": "Curl   ");
+		flattenUnFlattenButton.setText("Click to " + (flattening? "flatten":"curl  "));
 	}
 	public void startAux(final Stage primaryStage) throws Exception {
 		Scene scene = new Scene(root, 1600, 1000, true);
@@ -368,11 +368,12 @@ public class TestTube extends Application {
 			animate = !animate;
 			if (animate) {
 				flattenUnFlattenButton.setTextFill(Color.GREEN);
-				flattenUnFlattenButton.setText("Stop  ");
+				flattenUnFlattenButton.setText(flattening? "Flattening": "Curling  ");
 			} else {
 				stopAnimation();
 			}
 			});
+		stopAnimation();
 		root.getChildren().add(flattenUnFlattenButton);
 		
 		world.rx.setAngle(-69);
