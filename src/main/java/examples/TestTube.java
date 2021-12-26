@@ -38,6 +38,13 @@ import javafx.scene.transform.Translate;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 
+/**
+ * Demonstrates Tube.java, with a File Chooser to select the image to map to the Tube. (Try a png with transparency!)
+ * The Flatten/Curl button lets you flatten/curl the tube via an animation.
+ * 
+ * @author Don Smith
+ *
+ */
 public class TestTube extends Application {
 	private Group root = new Group();
 	private final XformCamera cameraXform = new XformCamera();
@@ -63,7 +70,8 @@ public class TestTube extends Application {
 	 //new Image("file:imgs/earth/diffuse-map.jpg");
 	private static final Random random = new Random();
 	private Tube tube;
-
+	private boolean flattening = true;
+	private final Button flattenUnFlattenButton = new Button("Flatten");
 	// -------------------------
 	private static class XformWorld extends Group {
 		final Translate t = new Translate(0.0, 0.0, 0.0);
@@ -267,11 +275,25 @@ public class TestTube extends Application {
 				if (!animate) {
 					return;
 				}
-				tube.flatten(ratioFlat);
-				if (ratioFlat<1) {
-					ratioFlat = Math.min(1.0, ratioFlat+ 0.001);
+				if (flattening) {
+					if (ratioFlat<1) {
+						ratioFlat = Math.min(1.0, ratioFlat+ 0.001);
+						if (ratioFlat == 1.0) {
+							flattening = false;
+							stopAnimation();
+						}
+					}
+				} else {
+					if (ratioFlat>0) {
+						ratioFlat = Math.max(0.0, ratioFlat- 0.001);
+						if (ratioFlat == 0.0) {
+							flattening = true;
+							stopAnimation();
+						}
+					}
 				}
-			}
+				tube.flatten(ratioFlat);
+			} // handle
            };
            timer.start();
 	}
@@ -308,6 +330,11 @@ public class TestTube extends Application {
 		p1 = p1.add(delta);
 		p2 = p2.add(delta);
 	}
+	private void stopAnimation() {
+		animate = false;
+		flattenUnFlattenButton.setTextFill(Color.RED);
+		flattenUnFlattenButton.setText(flattening? "Flatten": "Curl   ");
+	}
 	public void startAux(final Stage primaryStage) throws Exception {
 		Scene scene = new Scene(root, 1600, 1000, true);
 		scene.setFill(Color.DARKGREY.darker().darker());
@@ -333,21 +360,20 @@ public class TestTube extends Application {
 		AmbientLight light = new AmbientLight(Color.WHITE);
 		root.getChildren().add(light);
 
-		final Button button = new Button("Flatten");
-		button.setTranslateX(600);
-		button.setTranslateY(-250);
-		button.setTextFill(Color.RED);
-		button.setOnAction(e -> {
+
+		flattenUnFlattenButton.setTranslateX(600);
+		flattenUnFlattenButton.setTranslateY(-250);
+		flattenUnFlattenButton.setTextFill(Color.RED);
+		flattenUnFlattenButton.setOnAction(e -> {
 			animate = !animate;
 			if (animate) {
-				button.setTextFill(Color.GREEN);
-				button.setText("Stop  ");
+				flattenUnFlattenButton.setTextFill(Color.GREEN);
+				flattenUnFlattenButton.setText("Stop  ");
 			} else {
-				button.setTextFill(Color.RED);
-				button.setText("Animate");
+				stopAnimation();
 			}
 			});
-		root.getChildren().add(button);
+		root.getChildren().add(flattenUnFlattenButton);
 		
 		world.rx.setAngle(-69);
 		world.ry.setAngle(-214);
